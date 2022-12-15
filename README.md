@@ -12,22 +12,30 @@ Run Python selenium with chromedriver on GCP Functions.
     - serverless-chrome v1.0.0-37 for linux64 (fixed version depend on python 3.9)
     - chromedriver 2.37 for linux64 (fixed version depend on serverless-chrome)
 
+# Run on Local
+```bash
+# create pipenv
+# install functions-framework
+pip install functions-framework
+
+# run function
+functions-framework --target=scraper
+```
+
 # Deploy GCP Functions
 ```bash
 # install serverless-chrome v1.0.0-37, chromedriver 2.37
 sh installer.sh
 
 # deploy GCP functions
-gcloud functions deploy crawler \
+gcloud functions deploy scraper \
     --region asia-northeast1 \
     --runtime python39 \
     --allow-unauthenticated \
-    --trigger-http
+    --trigger-http \
+    --memory=512
 ```
 
 # References
 - serverless-chrome: https://github.com/adieuadieu/serverless-chrome
 - chromedriver: https://chromedriver.chromium.org/downloads
-
-# License
-© hayashikengo, 2021~time.Now

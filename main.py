@@ -1,10 +1,9 @@
 import os
 
-from fake_useragent import UserAgent
 from selenium import webdriver
 
 
-def crawler(request):
+def scraper(request):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
@@ -16,7 +15,6 @@ def crawler(request):
     chrome_options.add_argument('--v=99')
     chrome_options.add_argument('--single-process')
     chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('user-agent='+UserAgent().random)
     chrome_options.binary_location = os.getcwd() + "/bin/headless-chromium"
     driver = webdriver.Chrome(
         os.getcwd() + "/bin/chromedriver", chrome_options=chrome_options)

@@ -14,9 +14,9 @@ Run Python selenium with chromedriver on GCP Functions.
 
 # Run on Local
 ```bash
-# create pipenv
-# install functions-framework
+# prepare
 pip install functions-framework
+pip install -r requirements.txt
 
 # run function
 functions-framework --target=scraper

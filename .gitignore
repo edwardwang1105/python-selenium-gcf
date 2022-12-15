@@ -5,6 +5,7 @@
 .dockerignore
 
 bin/
+client_secret.json
 
 __pycache__/
 venv

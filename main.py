@@ -1,9 +1,20 @@
 import os
+import time
+
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 from selenium import webdriver
 
 
 def scraper(request):
+    # init google spreadsheet
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+    client = gspread.authorize(creds)
+    sheet = client.open("配当").sheet1
+
+    # init webdriver
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
@@ -19,8 +30,13 @@ def scraper(request):
     driver = webdriver.Chrome(
         os.getcwd() + "/bin/chromedriver", chrome_options=chrome_options)
 
-    driver.get('https://en.wikipedia.org/wiki/Special:Random')
-    line = driver.find_element_by_class_name('firstHeading').text
+    # start scraping
+    code = sheet.cell(2, 1).value
+    print(code)
+    driver.get(f'https://kabutan.jp/stock/?code={code}')
+    time.sleep(1)
+    line = driver.find_element_by_class_name('si_i1_1').text
     print(line)
+    sheet.update_cell(2, 2, line)
     driver.quit()
     return line

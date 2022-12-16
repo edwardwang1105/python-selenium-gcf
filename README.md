@@ -32,8 +32,12 @@ gcloud functions deploy scraper \
     --region asia-northeast1 \
     --runtime python39 \
     --allow-unauthenticated \
-    --trigger-http \
-    --memory=512
+    --timeout=540 \
+    --trigger-topic=haitou-scraping \
+    --memory=1024
+
+# (optional) update scheduler
+gcloud scheduler jobs update pubsub haitou-scraping --location=us-central1 --schedule="0 21 * * *"
 ```
 
 # References

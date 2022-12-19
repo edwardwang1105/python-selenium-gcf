@@ -2,13 +2,17 @@ import os
 import time
 from datetime import datetime, timedelta, timezone
 
+import functions_framework
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 from selenium import webdriver
 
 
-def scraper(data, context):
+@functions_framework.cloud_event
+def haitou_scraping(cloud_event):
+    print(f"Received event with ID: {cloud_event['id']} and data {cloud_event.data}")
+
     # 初始化Google Spreadsheet
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)

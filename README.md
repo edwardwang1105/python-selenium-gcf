@@ -18,8 +18,21 @@ Run Python selenium with chromedriver on GCP Functions.
 pip install functions-framework
 pip install -r requirements.txt
 
-# run function
-functions-framework --target=scraper
+# run Functions Framework server with function target
+functions-framework --target=haitou_scraping
+
+# In a different terminal, curl the Functions Framework server
+curl -X POST localhost:8080 \
+   -H "Content-Type: application/cloudevents+json" \
+   -d '{
+	"specversion" : "1.0",
+	"type" : "example.com.cloud.event",
+	"source" : "https://example.com/cloudevents/pull",
+	"subject" : "123",
+	"id" : "A234-1234-1234",
+	"time" : "2018-04-05T17:31:00Z",
+	"data" : "hello world"
+}'
 ```
 
 # Deploy GCP Functions
@@ -27,17 +40,16 @@ functions-framework --target=scraper
 # install serverless-chrome v1.0.0-37, chromedriver 2.37
 sh installer.sh
 
-# deploy GCP functions
-gcloud functions deploy scraper \
+# deploy GCP functions (gen2)
+gcloud functions deploy scraping-function \
+    --gen2 \
     --region asia-northeast1 \
     --runtime python39 \
-    --allow-unauthenticated \
-    --timeout=540 \
+    --entry-point haitou_scraping \
+    --source . \
     --trigger-topic=haitou-scraping \
+    --timeout=540 \
     --memory=1024
-
-# (optional) update scheduler
-gcloud scheduler jobs update pubsub haitou-scraping --location=us-central1 --schedule="0 21 * * *"
 ```
 
 # References

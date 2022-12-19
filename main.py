@@ -13,7 +13,8 @@ def scraper(data, context):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
     client = gspread.authorize(creds)
-    sheet = client.open("配当").sheet1
+    sheet = client.open("配当").worksheet("Sheet1")
+    # sheet = client.open("配当").worksheet("Test")  # For Test
 
     # 初始化抓取工具
     chrome_options = webdriver.ChromeOptions()
@@ -37,24 +38,30 @@ def scraper(data, context):
 
     # 对每个股票代码进行抓取
     for row_index, stock_code in enumerate(stock_code_list):
-        # 指定要抓取的网页网址
-        driver.get(f'https://kabutan.jp/stock/?code={stock_code}')
-        time.sleep(1)
-
-        # 抓取股价
-        kabuka = driver.find_element_by_xpath('//*[@id="stockinfo_i1"]/div[2]/span[2]').text
-
-        # 抓取趋势
-        trends = []
-        trend_elements = driver.find_elements_by_xpath('//*[@id="kobetsu_right"]/div[1]/table/tbody/tr[1]/td/img')
-        for element in trend_elements:
-            trends.append(element.get_attribute('alt'))
-
-        # 写入Spreadsheet
         JST = timezone(timedelta(hours=+9), 'JST')
-        write_data = [kabuka.replace('円', '')] + trends + [datetime.now(JST).strftime('%Y-%m-%d %H:%M:%S')]
-        print(stock_code, write_data)
-        for j in range(0, len(write_data)):
-            sheet.update_cell(row_index + 2, j + 4, write_data[j])
+        update_time = datetime.now(JST).strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            # 指定要抓取的网页网址
+            driver.get(f'https://kabutan.jp/stock/?code={stock_code}')
+            time.sleep(1)
+
+            # 抓取股价
+            kabuka = driver.find_element_by_xpath('//*[@id="stockinfo_i1"]/div[2]/span[2]').text
+
+            # 抓取趋势
+            trends = []
+            trend_elements = driver.find_elements_by_xpath('//*[@id="kobetsu_right"]/div[1]/table/tbody/tr[1]/td/img')
+            for element in trend_elements:
+                trends.append(element.get_attribute('alt'))
+
+            # 写入Spreadsheet
+            write_data = [kabuka.replace('円', '')] + trends + [update_time, 'Succeeded']
+            print(stock_code, write_data)
+            sheet.update(f'D{row_index + 2}', [write_data])
+        except Exception as e:
+            print(stock_code, [str(e).splitlines()[0]])
+            sheet.update(f'J{row_index + 2}', f'Failed on {update_time}. {str(e).splitlines()[0]}')
+            continue
 
     return 'Success'
